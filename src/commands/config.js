@@ -16,18 +16,18 @@ class ConfigCommand extends Command {
     let recordId = null
 
     if (!token) {
-      token = await cli.prompt('Please enter your DNSimple API Token', { type: 'mask' })
+      token = await cli.prompt('Please enter your DNSimple API Token. Generate from your account page, not from the user settings page. ', { type: 'mask' })
     }
 
     if (!domain) {
-      domain = await cli.prompt('Please enter your Domain Name')
+      domain = await cli.prompt('Please enter the domain name to target for DNS updates, excluding any sub-domain [domainname.com]')
     }
 
     let useSubDomain = false
     if ((!flags.token && !flags.domain) && !flags.subDomain) {
-      useSubDomain = await cli.confirm('Are you using a Sub-Domain?')
+      useSubDomain = await cli.confirm('Are you using a sub-domain? [y/n]')
       if (useSubDomain) {
-        subDomain = await cli.prompt('Please enter your Sub-Domain Name')
+        subDomain = await cli.prompt('Enter the naked sub-domain [eg. enter "sub" for "sub.domain.com"]')
       }
     }
 
@@ -48,7 +48,7 @@ class ConfigCommand extends Command {
         this.error(error.message, { exit: 1 })
       })
     } else {
-      await dnsimple.zones.listZoneRecords(accountId, domain, { type: 'A' }).then(response => {
+      await dnsimple.zones.listZoneRecords(accountId, domain, { type: 'AAAA' }).then(response => {
         if (response.data.length > 0) {
           recordId = response.data.find(el => el.name === '').id
         }
@@ -89,13 +89,13 @@ ConfigCommand.flags = {
   }),
   domain: flags.string({
     char: 'd',
-    description: 'The Domain Name you wish to use',
+    description: 'The domain name to target for DNS updates, excluding any sub-domain [domainname.com]',
     required: false,
     default: null
   }),
   subDomain: flags.string({
     char: 's',
-    description: 'The Sub-Domain Name you wish to use',
+    description: 'The naked sub-domain [eg. enter "sub" for "sub.domain.com"]',
     required: false,
     default: null
   })
