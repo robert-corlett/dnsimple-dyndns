@@ -18,7 +18,11 @@ class SyncCommand extends Command {
 
     const ipAddress = await getIpAddress(this)
     const hasChanged = ipAddress !== configuration.ipAddress
-
+		
+		if (!quiet) {
+			this.log('Your public IPV6 address is:  ' + ipAddress)
+		}
+		
     if (hasChanged || force) {
       dnsimple.setAccessToken(configuration.token)
 
